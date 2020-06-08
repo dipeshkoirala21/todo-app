@@ -35,7 +35,10 @@ class mainScreen extends Component {
   handleNav = () => {
     this.props.navigation.navigate("AddTodoScreen");
   };
-  renderItem = ({ item }) => {
+  handleLongPress = () => (index) => {
+    console.log(index);
+  };
+  renderItem = ({ item, index }) => {
     return (
       <View
         key={item.title}
@@ -55,7 +58,8 @@ class mainScreen extends Component {
             elevation: 4,
             marginTop: 10,
           }}
-          activeOpacity={1}
+          // activeOpacity={1}
+          onLongPress={this.handleLongPress(index)}
         >
           {/* <View style={{ flex: 1, justifyContent: "center" }}> */}
           <Text
@@ -397,7 +401,9 @@ class mainScreen extends Component {
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   data={data}
-                  renderItem={this.renderItem}
+                  renderItem={({ item, index, separators }) =>
+                    this.renderItem({ item, index, separators })
+                  }
                   keyExtractor={(item) => item.title}
                   numColumns={2}
                 />

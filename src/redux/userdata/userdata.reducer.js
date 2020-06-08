@@ -31,9 +31,7 @@ const reducer = (state = INITIAL_STATE, action) =>
         draft.data = INITIAL_STATE.data;
         break;
       case types.SAVE_USERS_DATA:
-        draft.users === []
-          ? (draft.users = action.payload)
-          : (draft.users = [...state.users, action.payload]);
+        draft.users = action.payload;
         break;
       case types.SET_TODO_LISTS:
         draft.todoData[action.payload.key] = action.payload.value;
@@ -42,9 +40,8 @@ const reducer = (state = INITIAL_STATE, action) =>
         draft.todoData = INITIAL_STATE.todoData;
         break;
       case types.ADD_TODO_LISTS:
-        draft.data.todos === []
-          ? (draft.data.todos = action.payload)
-          : (draft.data.todos = [...state.data.todos, action.payload]);
+        // console.log(action.payload, "from reducer");
+        draft.data.todos = action.payload;
         break;
     }
   });

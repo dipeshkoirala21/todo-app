@@ -22,6 +22,7 @@ import {
 import {
   selectData,
   selectListsData,
+  selectAllUsersData,
 } from "../../redux/userdata/userdata.selectors";
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -37,13 +38,29 @@ import Icon from "react-native-vector-icons/Ionicons";
 //   contact: Yup.string().matches(phoneRegExp, "Phone number is not valid"),
 // });
 class addtodo extends Component {
+  state = {
+    titleError: "",
+  };
   handleSubmit = async () => {
-    await this.props.saveUsersData(this.props.data);
-    await this.props.setClearData();
-    this.props.navigation.navigate("MainScreen");
+    const { data } = this.props;
+    if (data.title.length < 6) {
+      this.setState({
+        titleError: "Please Enter title with more than 6 Characters",
+      });
+    } else {
+      await this.props.saveUsersData([...this.props.selectAllUsersData, data]);
+      await this.props.setClearData();
+      this.props.navigation.navigate("MainScreen");
+    }
   };
   handleListSubmit = async () => {
-    await this.props.addTodoListsData(this.props.selectListsData);
+    const {
+      data: { todos },
+    } = this.props;
+    // if (todos.includes(value) || value === '' || value.trim() === '') {
+    //   return null;
+    // } else {
+    this.props.addTodoListsData([...todos, this.props.selectListsData]);
     await this.props.setClearTodoData();
   };
   onHandleChange = (key, value) => {
@@ -62,11 +79,9 @@ class addtodo extends Component {
     const {
       data: { todos },
     } = this.props;
-
-    const chipData = [...todos];
-
-    chipData.pop(index, 1);
-    this.props.addTodoListsData([...chipData]);
+    const delData = [...todos];
+    delData.splice(index, 1);
+    this.props.addTodoListsData([...delData]);
   };
   render() {
     const backgroundColors = [
@@ -80,16 +95,16 @@ class addtodo extends Component {
     ];
     const { data, selectListsData } = this.props;
     return (
-      <View
-        style={{
-          flex: 1,
-          width: Metrics.screenWidth,
-          height: Metrics.screenHeight,
-          justifyContent: "center",
-          backgroundColor: "#F3FBFF",
-        }}
-      >
-        <ScrollView>
+      <ScrollView>
+        <View
+          style={{
+            flex: 1,
+            width: Metrics.screenWidth,
+            height: Metrics.screenHeight,
+            justifyContent: "center",
+            backgroundColor: "#F3FBFF",
+          }}
+        >
           <View style={{ marginHorizontal: 10 }}>
             <Text
               style={{
@@ -108,7 +123,6 @@ class addtodo extends Component {
               style={{
                 height: 40,
                 width: "100%",
-                marginBottom: 20,
                 borderWidth: 0.5,
                 borderColor: data.color,
                 padding: 10,
@@ -120,6 +134,19 @@ class addtodo extends Component {
               onChangeText={(text) => this.onHandleChange("title", text)}
               placeholder={"Todo Title"}
             />
+            {this.state.titleError !== "" ? (
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Text
+                  style={{
+                    color: "red",
+                    fontSize: 10,
+                    fontFamily: "avenirNextMedium",
+                  }}
+                >
+                  {this.state.titleError}
+                </Text>
+              </View>
+            ) : null}
             <Text style={{ fontFamily: "avenirNextMedium" }}>List Todos</Text>
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
@@ -275,8 +302,8 @@ class addtodo extends Component {
               </Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     );
   }
 }
@@ -284,6 +311,7 @@ class addtodo extends Component {
 const mapStateToProps = createStructuredSelector({
   data: selectData,
   selectListsData,
+  selectAllUsersData,
 });
 const mapDispatchToProps = {
   setClearData,

@@ -29,6 +29,12 @@ export const addTodoListsData = (payload) => (dispatch) => {
     payload,
   });
 };
+export const delTodoListsData = (payload) => (dispatch) => {
+  dispatch({
+    type: types.DEL_TODO_LIST,
+    payload,
+  });
+};
 export const setClearData = (payload) => (dispatch) => {
   dispatch({
     type: types.CLEAR_USER_DATA_FIELD,
