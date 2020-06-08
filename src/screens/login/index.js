@@ -22,20 +22,13 @@ import {
 } from "react-native-gesture-handler";
 import { createStructuredSelector } from "reselect";
 import { connect } from "react-redux";
-// import { loginRequest, facebook, google } from '../../redux/auth/auth.actions';
-// import { selectToken } from '../../redux/app/app.selectors';
-// import {
-//   selectAuthErrors,
-//   selectLoading,
-// } from '../../redux/auth/auth.selectors';
-// import SafariView from 'react-native-safari-view';
 import * as firebase from "firebase";
 import { firebaseConfig } from "../../../firebaseConfig";
 firebase.initializeApp(firebaseConfig);
 class Login extends Component {
   state = {
-    email: "dipeshkoirala21@gmail.com",
-    password: "hdmq8win",
+    email: "",
+    password: "",
     user: null,
     textentry: false,
   };
@@ -265,12 +258,7 @@ class Login extends Component {
     );
   }
 }
-// export default Login;
-const mapStateToProps = createStructuredSelector({
-  // token: selectToken,
-  // loading: selectLoading,
-  // errors: selectAuthErrors,
-});
+const mapStateToProps = createStructuredSelector({});
 
 const mapDispatchToProps = null;
 
