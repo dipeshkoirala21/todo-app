@@ -4,5 +4,5 @@
 4. after `yarn start` command, it will start development server in the browser, select local and Run on android device / IOS to run on your respective devices. Optionally, you could use lan and scan the QR code using expo app in android and in IOS you can use Camera app to scan the QR code, but remember, you should be in the same local area network to run the app.
 
 
-====================================================
+=============================================================================================================================
 Tips: long press the card to delete the notes
