@@ -40,8 +40,12 @@ const reducer = (state = INITIAL_STATE, action) =>
         draft.todoData = INITIAL_STATE.todoData;
         break;
       case types.ADD_TODO_LISTS:
-        // console.log(action.payload, "from reducer");
         draft.data.todos = action.payload;
+        break;
+      case types.SET_COMPLETED:
+        draft.users[action.payload.cIndex].todos[action.payload.index][
+          action.payload.key
+        ] = action.payload.value;
         break;
     }
   });

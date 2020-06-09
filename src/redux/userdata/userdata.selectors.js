@@ -19,3 +19,7 @@ export const selectAllUsersData = createSelector(
   [selectUserData],
   (userdata) => userdata.users
 );
+export const selectLists = createSelector(
+  [selectAllUsersData],
+  (users) => users.todos
+);

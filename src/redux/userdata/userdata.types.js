@@ -10,3 +10,5 @@ export const ADD_TODO_LISTS = "mobile-app/userdata/ADD_TODO_LISTS";
 export const CLEAR_TODO_LISTS = "mobile-app/userdata/CLEAR_TODO_LISTS";
 
 export const SET_TODO_LISTS = "mobile-app/userdata/SET_TODO_LISTS";
+
+export const SET_COMPLETED = "mobile-app/userdata/SET_COMPLETED";

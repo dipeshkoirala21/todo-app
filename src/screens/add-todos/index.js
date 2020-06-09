@@ -27,16 +27,6 @@ import {
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/Ionicons";
 
-// const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-// const formValidator = yup.object({
-//   name: yup
-//     .string()
-//     .required()
-//     .min(4),
-//   country: yup.string().required(),
-//   favPhone: yup.string().required(),
-//   contact: Yup.string().matches(phoneRegExp, "Phone number is not valid"),
-// });
 class addtodo extends Component {
   state = {
     titleError: "",
@@ -57,9 +47,6 @@ class addtodo extends Component {
     const {
       data: { todos },
     } = this.props;
-    // if (todos.includes(value) || value === '' || value.trim() === '') {
-    //   return null;
-    // } else {
     this.props.addTodoListsData([...todos, this.props.selectListsData]);
     await this.props.setClearTodoData();
   };
@@ -262,11 +249,9 @@ class addtodo extends Component {
                           alignItems: "center",
                           justifyContent: "center",
                           flexDirection: "row",
-                          // marginBottom: 10,
                           borderRadius: 15,
                           borderWidth: 1,
                           borderColor: each,
-                          // elevation: 4,
                           overflow: "hidden",
                         }}
                         onPress={() => this.onHandleChange("color", each)}

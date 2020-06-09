@@ -47,3 +47,9 @@ export const setClearTodoData = (payload) => (dispatch) => {
     payload,
   });
 };
+export const setCompletedBoolean = (payload) => (dispatch) => {
+  dispatch({
+    type: types.SET_COMPLETED,
+    payload,
+  });
+};

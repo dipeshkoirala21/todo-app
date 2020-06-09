@@ -10,11 +10,12 @@ import {
   Dimensions,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from "react-native";
 import { Metrics } from "../../global/constants/Metrics";
 import { createStructuredSelector } from "reselect";
 import { connect } from "react-redux";
-import {} from "../../redux/userdata/userdata.actions";
+import { saveUsersData } from "../../redux/userdata/userdata.actions";
 import { selectAllUsersData } from "../../redux/userdata/userdata.selectors";
 
 import Icon from "react-native-vector-icons/Ionicons";
@@ -35,10 +36,32 @@ class mainScreen extends Component {
   handleNav = () => {
     this.props.navigation.navigate("AddTodoScreen");
   };
-  handleLongPress = () => (index) => {
-    console.log(index);
+  handleDelete = (index) => () => {
+    Alert.alert(
+      "Alert",
+      "Are you Sure Want to delete this Note?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            const { data } = this.props;
+            const delData = [...data];
+            delData.splice(index, 1);
+            this.props.saveUsersData([...delData]);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
   renderItem = ({ item, index }) => {
+    const completedCount = item.todos.filter((todo) => todo.completed).length;
+    const remainingCount = item.todos.length - completedCount;
     return (
       <View
         key={item.title}
@@ -58,51 +81,100 @@ class mainScreen extends Component {
             elevation: 4,
             marginTop: 10,
           }}
-          // activeOpacity={1}
-          onLongPress={this.handleLongPress(index)}
+          onLongPress={this.handleDelete(index)}
+          onPress={() =>
+            this.props.navigation.navigate("NoteDetails", {
+              // data: item,
+              ind: index,
+            })
+          }
         >
-          {/* <View style={{ flex: 1, justifyContent: "center" }}> */}
           <Text
             style={{
-              fontSize: 20,
+              fontSize: 25,
               fontWeight: "900",
               alignSelf: "center",
               color: "#fff",
               marginTop: 5,
-              // marginLeft: 10,
               fontFamily: "avenirNextMedium",
             }}
             numberOfLines={1}
           >
             {item && item.title ? item.title : null}
           </Text>
-          {/* </View> */}
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: "900",
+              alignSelf: "center",
+              color: "#fff",
+              marginTop: 10,
+              fontFamily: "avenirNextMedium",
+            }}
+            numberOfLines={1}
+          >
+            Completed{" "}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "900",
+              alignSelf: "center",
+              color: "#fff",
+              fontFamily: "avenirNextMedium",
+            }}
+          >
+            {completedCount}
+          </Text>
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: "900",
+              alignSelf: "center",
+              color: "#fff",
+              marginTop: 10,
+              fontFamily: "avenirNextMedium",
+            }}
+            numberOfLines={1}
+          >
+            Remaining{" "}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "900",
+              alignSelf: "center",
+              color: "#fff",
+              fontFamily: "avenirNextMedium",
+            }}
+          >
+            {remainingCount}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   };
   render() {
     const { data } = this.props;
-    // let searchResults = Object.assign({}, data);
-    const offers = data
-      ? data.map(function state(each) {
+    const completedCount = data.map(
+      (each) => each.todos.filter((todo) => todo.completed).length
+    );
+    const remainingCount =
+      data.map((each) => each.todos).length - completedCount;
+    const lists = data
+      ? data.map(function state(each, index) {
           let displayName = "";
-          displayName = each.name;
+          displayName = each.title;
           return {
-            id: each.name,
-            name: displayName,
-            country: each.country,
-            phone_brand: each.favPhone,
-            contact: each.contact,
+            id: each.title,
+            title: displayName,
+            color: each.color,
+            index: index,
           };
         })
       : [];
-    const filteredSearch = offers.filter(
-      (a) =>
-        a.name &&
-        a.phone_brand
-          .toLowerCase()
-          .includes(this.state.selectedText.toLowerCase())
+    const filteredSearch = lists.filter((a) =>
+      a.title.toLowerCase().includes(this.state.selectedText.toLowerCase())
     );
     return (
       <SafeAreaView
@@ -253,144 +325,51 @@ class mainScreen extends Component {
                         <View style={{ padding: 10, marginTop: 50 }}>
                           {Object.keys(filteredSearch).length > 0
                             ? filteredSearch.map((each) => (
-                                <TouchableOpacity
+                                <View
                                   key={each.title}
                                   style={{
                                     flex: 1,
-                                    height: 100,
-                                    width: Metrics.screenWidth - 20,
-                                    backgroundColor: "#FFFFFF",
-                                    borderRadius: 5,
-                                    elevation: 4,
-                                    marginVertical: 5,
-                                    justifyContent: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "space-evenly",
+                                    flexWrap: "wrap",
                                   }}
-                                  activeOpacity={1}
                                 >
-                                  <View
+                                  <TouchableOpacity
                                     style={{
-                                      flex: 1,
+                                      height: 200,
+                                      width: Metrics.screenWidth / 2 - 20,
+                                      backgroundColor: each.color,
+                                      borderRadius: 5,
+                                      elevation: 4,
+                                      marginTop: 10,
                                       justifyContent: "center",
                                       alignItems: "center",
-                                      justifyContent: "space-between",
+                                    }}
+                                    onPress={() => {
+                                      this.props.navigation.navigate(
+                                        "NoteDetails",
+                                        {
+                                          ind: each.index,
+                                        }
+                                      );
+                                      this.setModalVisible(false);
                                     }}
                                   >
-                                    <View
+                                    <Text
                                       style={{
-                                        flexDirection: "row",
-                                        justifyContent: "space-evenly",
-                                        flexWrap: "wrap",
+                                        fontSize: 25,
+                                        fontWeight: "900",
+                                        alignSelf: "center",
+                                        color: "#fff",
+                                        marginTop: 5,
+                                        fontFamily: "avenirNextMedium",
                                       }}
+                                      numberOfLines={1}
                                     >
-                                      <View style={{ flexDirection: "row" }}>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                            fontWeight: "bold",
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          Name :
-                                        </Text>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          {each && each.name ? each.name : null}
-                                        </Text>
-                                      </View>
-                                      <View style={{ flexDirection: "row" }}>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                            fontWeight: "bold",
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          Country :
-                                        </Text>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          {each && each.country
-                                            ? each.country
-                                            : null}
-                                        </Text>
-                                      </View>
-                                      <View style={{ flexDirection: "row" }}>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                            fontWeight: "bold",
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          Phone Brand :
-                                        </Text>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          {each && each.favPhone
-                                            ? each.favPhone
-                                            : null}
-                                        </Text>
-                                      </View>
-                                      <View style={{ flexDirection: "row" }}>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                            fontWeight: "bold",
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          Contact :
-                                        </Text>
-                                        <Text
-                                          style={{
-                                            fontSize: 15,
-                                            color: "#000",
-                                            marginTop: 5,
-                                            marginLeft: 10,
-                                          }}
-                                          numberOfLines={1}
-                                        >
-                                          {each && each.contact
-                                            ? each.contact
-                                            : null}
-                                        </Text>
-                                      </View>
-                                    </View>
-                                  </View>
-                                </TouchableOpacity>
+                                      {each && each.title ? each.title : null}
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
                               ))
                             : null}
                         </View>
@@ -401,9 +380,7 @@ class mainScreen extends Component {
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   data={data}
-                  renderItem={({ item, index, separators }) =>
-                    this.renderItem({ item, index, separators })
-                  }
+                  renderItem={(item, index) => this.renderItem(item, index)}
                   keyExtractor={(item) => item.title}
                   numColumns={2}
                 />
@@ -444,6 +421,8 @@ class mainScreen extends Component {
 const mapStateToProps = createStructuredSelector({
   data: selectAllUsersData,
 });
-const mapDispatchToProps = null;
+const mapDispatchToProps = {
+  saveUsersData,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(mainScreen);

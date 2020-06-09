@@ -11,6 +11,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Platform,
+  ToastAndroid,
 } from "react-native";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
@@ -27,19 +28,21 @@ import { firebaseConfig } from "../../../firebaseConfig";
 firebase.initializeApp(firebaseConfig);
 class Login extends Component {
   state = {
+    name: "",
     email: "",
     password: "",
     user: null,
     textentry: false,
+    signup: false,
   };
   componentDidMount() {}
 
-  static getDerivedStateFromProps = (nextProps) => {
-    if (nextProps.token) {
-      nextProps.navigation.navigate("Userprofile");
-    }
-    return null;
-  };
+  // static getDerivedStateFromProps = (nextProps) => {
+  //   if (nextProps.token) {
+  //     nextProps.navigation.navigate("MainScreen");
+  //   }
+  //   return null;
+  // };
 
   loginUser = (email, password) => {
     try {
@@ -55,14 +58,35 @@ class Login extends Component {
       alert(error);
     }
   };
+  signUpUser = (email, password) => {
+    try {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then((user) => {
+          if (user.user.email === this.state.email) {
+            this.setState({ signup: false });
+          }
+          ToastAndroid.show("User Created Sucessfullya!", ToastAndroid.SHORT);
+          return;
+        });
+    } catch (error) {
+      alert(error);
+    }
+  };
   handleChange = (name) => (text) => this.setState({ [name]: text });
+  setSignupBoolean = () => {
+    this.setState({
+      signup: !this.state.signup,
+    });
+  };
   toggleEyes = () => {
     this.setState({
       textentry: !this.state.textentry,
     });
   };
   render() {
-    const { email, password } = this.state;
+    const { name, email, password } = this.state;
     const { loading, errors } = this.props;
     return (
       <SafeAreaView
@@ -90,16 +114,29 @@ class Login extends Component {
             >
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ paddingTop: Platform.OS === "ios" ? 0 : 40 }}>
-                  <Text
-                    style={{
-                      fontSize: 28,
-                      color: "#333",
-                      fontWeight: "bold",
-                      marginHorizontal: 16,
-                    }}
-                  >
-                    Login
-                  </Text>
+                  {!this.state.signup ? (
+                    <Text
+                      style={{
+                        fontSize: 28,
+                        color: "#333",
+                        fontWeight: "bold",
+                        marginHorizontal: 16,
+                      }}
+                    >
+                      Login
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        fontSize: 28,
+                        color: "#333",
+                        fontWeight: "bold",
+                        marginHorizontal: 16,
+                      }}
+                    >
+                      Sign Up
+                    </Text>
+                  )}
                 </View>
                 <Text
                   style={{
@@ -112,99 +149,195 @@ class Login extends Component {
                 >
                   Continue with email
                 </Text>
-                <View
-                  style={{
-                    borderRadius: 4,
-                    borderColor: "#d3d3d3",
-                    marginHorizontal: 16,
-                    position: "relative",
-                    backgroundColor: "#fff",
-                    shadowColor: "#000",
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
-                    },
-                    shadowOpacity: 0.23,
-                    shadowRadius: 2.62,
-                    elevation: 4,
-                  }}
-                >
-                  <TextInput
-                    style={{
-                      height: 48,
-                      borderBottomWidth: 1,
-                      borderColor: "#d3d3d3",
-                      marginBottom: 5,
-                      paddingHorizontal: 16,
-                    }}
-                    value={this.state.email}
-                    onChangeText={this.handleChange("email")}
-                    placeholder={"Email"}
-                    keyboardType={"default"}
-                  />
-
+                {!this.state.signup ? (
                   <View
                     style={{
-                      flexDirection: "row",
-                      borderBottomWidth: 1,
-                      marginBottom: 5,
-                      borderBottomColor: "#d3d3d3",
-                      justifyContent: "space-between",
+                      borderRadius: 4,
+                      borderColor: "#d3d3d3",
+                      marginHorizontal: 16,
+                      position: "relative",
+                      backgroundColor: "#fff",
+                      shadowColor: "#000",
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.23,
+                      shadowRadius: 2.62,
+                      elevation: 4,
                     }}
                   >
                     <TextInput
                       style={{
                         height: 48,
+                        borderBottomWidth: 1,
+                        borderColor: "#d3d3d3",
+                        marginBottom: 5,
                         paddingHorizontal: 16,
-                        width: Dimensions.get("window").width - 80,
                       }}
-                      value={this.state.password}
-                      onChangeText={this.handleChange("password")}
-                      placeholder={"Password"}
-                      secureTextEntry={!this.state.textentry}
+                      value={this.state.email}
+                      onChangeText={this.handleChange("email")}
+                      placeholder={"Email"}
+                      keyboardType={"default"}
                     />
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        borderBottomWidth: 1,
+                        marginBottom: 5,
+                        borderBottomColor: "#d3d3d3",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <TextInput
+                        style={{
+                          height: 48,
+                          paddingHorizontal: 16,
+                          width: Dimensions.get("window").width - 80,
+                        }}
+                        value={this.state.password}
+                        onChangeText={this.handleChange("password")}
+                        placeholder={"Password"}
+                        secureTextEntry={!this.state.textentry}
+                      />
+                      <TouchableOpacity
+                        style={{
+                          height: 40,
+                          width: 40,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 90,
+                        }}
+                        onPress={this.toggleEyes}
+                      >
+                        {this.state.textentry === false ? (
+                          <Image
+                            style={{ width: 20, height: 20, marginRight: 12 }}
+                            source={require("../../../assets/eyeoff.png")}
+                          />
+                        ) : (
+                          <Image
+                            style={{ width: 20, height: 15, marginRight: 12 }}
+                            source={require("../../../assets/eyeon.png")}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </View>
                     <TouchableOpacity
                       style={{
-                        height: 40,
-                        width: 40,
+                        height: 48,
                         alignItems: "center",
                         justifyContent: "center",
-                        zIndex: 90,
                       }}
-                      onPress={this.toggleEyes}
+                      onPress={() => this.loginUser(email, password)}
                     >
-                      {this.state.textentry === false ? (
-                        <Image
-                          style={{ width: 20, height: 20, marginRight: 12 }}
-                          source={require("../../../assets/eyeoff.png")}
-                        />
-                      ) : (
-                        <Image
-                          style={{ width: 20, height: 15, marginRight: 12 }}
-                          source={require("../../../assets/eyeon.png")}
-                        />
-                      )}
+                      <Text
+                        style={{
+                          fontSize: 17,
+                          color: "#000080",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Login
+                      </Text>
                     </TouchableOpacity>
                   </View>
-                  <TouchableOpacity
+                ) : (
+                  <View
                     style={{
-                      height: 48,
-                      alignItems: "center",
-                      justifyContent: "center",
+                      borderRadius: 4,
+                      borderColor: "#d3d3d3",
+                      marginHorizontal: 16,
+                      position: "relative",
+                      backgroundColor: "#fff",
+                      shadowColor: "#000",
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.23,
+                      shadowRadius: 2.62,
+                      elevation: 4,
                     }}
-                    onPress={() => this.loginUser(email, password)}
                   >
-                    <Text
+                    <TextInput
                       style={{
-                        fontSize: 17,
-                        color: "#000080",
-                        fontWeight: "bold",
+                        height: 48,
+                        borderBottomWidth: 1,
+                        borderColor: "#d3d3d3",
+                        marginBottom: 5,
+                        paddingHorizontal: 16,
+                      }}
+                      value={this.state.email}
+                      onChangeText={this.handleChange("email")}
+                      placeholder={"Email"}
+                      keyboardType={"default"}
+                    />
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        borderBottomWidth: 1,
+                        marginBottom: 5,
+                        borderBottomColor: "#d3d3d3",
+                        justifyContent: "space-between",
                       }}
                     >
-                      Login
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                      <TextInput
+                        style={{
+                          height: 48,
+                          paddingHorizontal: 16,
+                          width: Dimensions.get("window").width - 80,
+                        }}
+                        value={this.state.password}
+                        onChangeText={this.handleChange("password")}
+                        placeholder={"Password"}
+                        secureTextEntry={!this.state.textentry}
+                      />
+                      <TouchableOpacity
+                        style={{
+                          height: 40,
+                          width: 40,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 90,
+                        }}
+                        onPress={this.toggleEyes}
+                      >
+                        {this.state.textentry === false ? (
+                          <Image
+                            style={{ width: 20, height: 20, marginRight: 12 }}
+                            source={require("../../../assets/eyeoff.png")}
+                          />
+                        ) : (
+                          <Image
+                            style={{ width: 20, height: 15, marginRight: 12 }}
+                            source={require("../../../assets/eyeon.png")}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity
+                      style={{
+                        height: 48,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onPress={() => this.signUpUser(email, password)}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 17,
+                          color: "#000080",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Sign Up
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
                 {loading && <ActivityIndicator />}
                 <View
                   style={{
@@ -220,34 +353,53 @@ class Login extends Component {
                       alignItems: "center",
                       justifyContent: "center",
                     }}
-                    onPress={() =>
-                      this.props.navigation.navigate("ForgotPassword")
-                    }
                   >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: "#555",
-                      }}
-                    >
-                      Dont Have an Account?
-                    </Text>
+                    {!this.state.signup ? (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#555",
+                        }}
+                      >
+                        Don't have an Account?
+                      </Text>
+                    ) : (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#555",
+                        }}
+                      >
+                        Already have an Account?
+                      </Text>
+                    )}
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{
                       alignItems: "center",
                       justifyContent: "center",
                     }}
-                    onPress={() => this.props.navigation.navigate("Signup")}
+                    onPress={this.setSignupBoolean}
                   >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: "#555",
-                      }}
-                    >
-                      Sign up
-                    </Text>
+                    {!this.state.signup ? (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#555",
+                        }}
+                      >
+                        Sign Up
+                      </Text>
+                    ) : (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#555",
+                        }}
+                      >
+                        Login
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               </ScrollView>
